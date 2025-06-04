@@ -6,9 +6,9 @@ from flask_cors import CORS # Import CORS
 app = Flask(__name__)
 
 # Initialize CORS for your app
-# IMPORTANT: Replace 'https://your-shopify-store.myshopify.com' with your actual Shopify store URL.
+# IMPORTANT: The origin URL must exactly match your Shopify store's domain.
 # This allows requests from your Shopify store to your Render backend.
-CORS(app, resources={r"/*": {"origins": "https://impactventurescologne.myshopify.com/"}})
+CORS(app, resources={r"/*": {"origins": "https://impactventurescologne.myshopify.com"}})
 
 
 app.secret_key = os.getenv("SECRET_KEY")
