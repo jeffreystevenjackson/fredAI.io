@@ -4,6 +4,13 @@ import os
 
 app = Flask(__name__)
 
+import os
+# ... other imports ...
+
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY") # Get from environment variable
+
+
 FAQ_JSON = 'faq.json'
 SUGGESTIONS_FILE = 'suggestions.json'  # To save suggestions (optional)
 
