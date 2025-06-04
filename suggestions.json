@@ -1,1 +1,1 @@
-[]"# ... in submit_suggestion function ...\n# if not os.path.exists(SUGGESTIONS_FILE):\n#     suggestions = []\n# else:\n#     with open(SUGGESTIONS_FILE, 'r', encoding='utf-8') as f:\n#         try:\n#             suggestions = json.load(f)\n#         except Exception:\n#             suggestions = []\n\n# suggestions.append({'suggestion': suggestion})\n# with open(SUGGESTIONS_FILE, 'w', encoding='utf-8') as f:\n#     json.dump(suggestions, f, indent=2, ensure_ascii=False)\n\nreturn jsonify({'success': True, 'message': 'Thank you! Your suggestion has been received.'})"
+[]
