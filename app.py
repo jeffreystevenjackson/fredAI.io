@@ -7,9 +7,9 @@ import requests # Import requests library for making HTTP calls
 app = Flask(__name__)
 
 # Initialize CORS for your app
-# IMPORTANT: The origin URL must exactly match your Shopify store's domain.
-# This allows requests from your Shopify store to your Render backend.
-CORS(app, resources={r"/*": {"origins": "https://impactventurescologne.myshopify.com"}})
+# IMPORTANT: Temporarily allowing all origins (*) for debugging purposes.
+# In production, consider explicitly listing all valid Shopify domains (e.g., "https://yourcustomdomain.com", "https://impactventurescologne.myshopify.com").
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 app.secret_key = os.getenv("SECRET_KEY")
@@ -20,7 +20,7 @@ SUGGESTIONS_FILE = 'suggestions.json'  # To save suggestions (optional)
 # Gemini API configuration
 # IMPORTANT: The API key should be provided via environment variables in production.
 # For local development, you might set it directly or via a .env file.
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # This line is changed to read from environment variable
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 
@@ -111,6 +111,9 @@ def chat_gemini():
         print(f"An unexpected error occurred: {e}")
         return jsonify({'error': 'An unexpected error occurred', 'details': str(e)}), 500
 
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
