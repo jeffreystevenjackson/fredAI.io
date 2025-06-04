@@ -142,16 +142,22 @@ body {
     align-items: center;
 }
 
-.chat-area {
+.chat-scrollable-content { /* New style for the scrollable area */
     flex: 1;
     overflow-y: auto;
     padding: 24px 18px 18px 18px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    min-height: 300px;
-    max-height: 320px;
 }
+
+.chat-area {
+    display: flex; /* Ensure messages are stacked correctly */
+    flex-direction: column;
+    gap: 16px;
+    min-height: fit-content; /* Allow content to dictate height */
+}
+
 
 .message {
     display: flex;
@@ -354,7 +360,7 @@ body {
         min-height: 330px;
         max-height: 430px;
     }
-    .chat-area {
+    .chat-scrollable-content {
         padding: 8px 4px 8px 4px;
     }
     .categories-container,
