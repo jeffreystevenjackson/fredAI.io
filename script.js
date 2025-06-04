@@ -127,8 +127,10 @@ function showQuestions(categoryObj) {
 // User selects a question
 function onUserSelectsQuestion(faq, categoryObj) {
     addMessage(faq.question, 'user');
-    showCategories(); // Show categories immediately!
+    // Display the answer immediately
+    addMessage(faq.answer, 'bot');
+    // Then show categories after a short delay
     setTimeout(() => {
-        addMessage(faq.answer, 'bot');
+        showCategories();
     }, 500);
 }
