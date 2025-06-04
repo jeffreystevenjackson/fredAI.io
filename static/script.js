@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Event listeners for open-ended chat
     const chatInput = document.getElementById('chat-input');
     const sendChatBtn = document.getElementById('send-chat-btn');
+    const showFaqsBtn = document.getElementById('show-faqs-btn'); // Get the new button
 
     sendChatBtn.addEventListener('click', sendOpenEndedMessage);
     chatInput.addEventListener('keypress', function(e) {
@@ -80,6 +81,9 @@ document.addEventListener('DOMContentLoaded', function () {
             sendOpenEndedMessage();
         }
     });
+
+    // Event listener for the new "Browse FAQs" button
+    showFaqsBtn.addEventListener('click', showCategories);
 
     // Ensure chat area is visible and faq-list is hidden when starting chat
     const chatTab = document.getElementById('chat-tab');
