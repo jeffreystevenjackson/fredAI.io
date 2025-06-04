@@ -5,12 +5,16 @@
     <title>Nocturne Opus Chatbot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Updated to use absolute URL for style.css from Render -->
+    <link rel="stylesheet" href="https://fredai-io.onrender.com/static/style.css">
 </head>
 <body>
     <div class="chatbot-wrapper">
-        <img src="{{ url_for('static', filename='img.png') }}" class="watermark-bg" alt="Nocturne Opus Watermark" />
+        <!-- Updated to use absolute URL for watermark-bg image from Render -->
+        <img src="https://fredai-io.onrender.com/static/img.png" class="watermark-bg" alt="Nocturne Opus Watermark" />
         <div class="chatbot-header">
+            <!-- Updated to use absolute URL for logo image from Render -->
+            <img src="https://fredai-io.onrender.com/static/logo.jpeg" alt="Nocturne Opus Logo" class="logo-img">
             <span class="brand-title">Nocturne Opus</span>
         </div>
         <div class="tab-nav">
@@ -29,6 +33,7 @@
             </div>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- Updated to use absolute URL for script.js from Render -->
+    <script src="https://fredai-io.onrender.com/static/script.js"></script>
 </body>
 </html>
