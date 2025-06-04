@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const logo = document.createElement('img');
         // Updated to use absolute URL for logo.jpeg from Render
         logo.src = `${RENDER_BASE_URL}/static/logo.jpeg`;
-        logo.alt = "Nocturne Opus Logo";
+        logo.alt = "Impact Ventures Logo"; // Changed alt text
         logo.className = "logo-img";
         header.prepend(logo);
     }
@@ -125,8 +125,8 @@ async function sendOpenEndedMessage() {
     try {
         const response = await fetch(`${RENDER_BASE_URL}/chat_gemini`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: userMessage})
         });
 
         const data = await response.json();
@@ -157,7 +157,7 @@ async function sendOpenEndedMessage() {
 
 // Show greeting at start
 function showGreeting() {
-    addMessage('Hello, I’m Nocturne Opus Assistant. How can I help?', 'bot');
+    addMessage('Hello, I’m Impact Ventures Assistant. How can I help?', 'bot'); // Changed assistant name
 }
 
 // Add a message bubble to chat
