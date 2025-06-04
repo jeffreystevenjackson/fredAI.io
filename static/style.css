@@ -31,7 +31,18 @@ body {
     display: flex;
     flex-direction: column;
     border: 2px solid var(--emerald);
+    /* Added transition for smooth hide/show */
+    transition: all 0.3s ease-in-out;
 }
+
+/* New class to hide the chatbot */
+.chatbot-hidden {
+    opacity: 0;
+    pointer-events: none; /* Make it unclickable when hidden */
+    transform: translateY(100%); /* Slide out of view */
+    visibility: hidden;
+}
+
 
 .watermark-bg {
     position: absolute;
@@ -73,7 +84,28 @@ body {
     background: var(--white);
     border-bottom: 1.5px solid #eee;
     gap: 12px;
+    position: relative; /* Needed for positioning the close button */
 }
+
+/* New close button styling */
+.close-chatbot-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--emerald);
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px;
+    transition: color 0.2s ease;
+}
+
+.close-chatbot-btn:hover {
+    color: var(--rose-gold);
+}
+
 
 .logo-img {
     width: 37px;
@@ -142,7 +174,7 @@ body {
     align-items: center;
 }
 
-.chat-scrollable-content { /* New style for the scrollable area */
+.chat-scrollable-content {
     flex: 1;
     overflow-y: auto;
     padding: 24px 18px 18px 18px;
@@ -152,10 +184,10 @@ body {
 }
 
 .chat-area {
-    display: flex; /* Ensure messages are stacked correctly */
+    display: flex;
     flex-direction: column;
     gap: 16px;
-    min-height: fit-content; /* Allow content to dictate height */
+    min-height: fit-content;
 }
 
 
@@ -308,8 +340,8 @@ body {
     flex-direction: column;
     width: 100%;
     align-items: center;
-    padding-top: 12px; /* Added padding to separate from scrollable content */
-    background: var(--white); /* Match background for seamless look */
+    padding-top: 12px;
+    background: var(--white);
 }
 
 .show-faqs-btn {
@@ -322,7 +354,7 @@ body {
     font-size: 0.95rem;
     padding: 8px 18px;
     cursor: pointer;
-    margin-bottom: 10px; /* Space between button and input container */
+    margin-bottom: 10px;
     transition: background 0.18s, color 0.18s, border 0.18s;
     box-shadow: 0 2px 8px rgba(12,72,62,0.05);
 }
@@ -337,11 +369,11 @@ body {
 .chat-input-container {
     display: flex;
     padding: 12px 18px;
-    border-top: 1px solid #eee; /* Kept existing border-top */
+    border-top: 1px solid #eee;
     background: var(--white);
     gap: 10px;
     align-items: center;
-    width: 100%; /* Ensure it takes full width of its parent */
+    width: 100%;
 }
 
 .chat-input {
@@ -352,9 +384,9 @@ body {
     font-family: 'Montserrat', sans-serif;
     font-size: 1rem;
     outline: none;
-    resize: none; /* Prevent vertical resizing */
-    min-height: 20px; /* Adjust as needed */
-    max-height: 80px; /* Adjust as needed */
+    resize: none;
+    min-height: 20px;
+    max-height: 80px;
     overflow-y: auto;
 }
 
@@ -381,24 +413,31 @@ body {
     .chatbot-wrapper {
         max-width: 99vw;
         min-width: 98vw;
-        margin: 1vw; /* Adjusted margin for slightly more edge space */
+        margin: 1vw;
         border-radius: 18px;
-        min-height: auto; /* Allow height to adjust dynamically */
+        min-height: auto;
         height: auto;
     }
     .chatbot-header {
         padding: 14px 10px 12px 12px;
     }
-    /* Make tab-content height more flexible */
+
+    .close-chatbot-btn { /* Adjusted for mobile */
+        top: 10px;
+        right: 10px;
+        font-size: 1.2rem;
+        padding: 3px;
+    }
+
     .tab-content, #chat-tab.tab-content {
-        min-height: 50vh; /* Ensure a decent minimum height relative to viewport */
-        height: auto; /* Allow height to grow based on content */
-        max-height: 80vh; /* Set a reasonable maximum height to avoid excessive scrolling */
-        flex: 1; /* Allow it to take available space */
+        min-height: 50vh;
+        height: auto;
+        max-height: 80vh;
+        flex: 1;
     }
     .chat-scrollable-content {
         padding: 8px 4px 8px 4px;
-        flex: 1; /* Ensure it takes available space within its parent */
+        flex: 1;
     }
     .categories-container,
     .questions-container {
@@ -413,7 +452,7 @@ body {
     }
 
     .chat-bottom-controls {
-        padding-top: 8px; /* Adjusted padding for mobile */
+        padding-top: 8px;
     }
 
     .show-faqs-btn {
