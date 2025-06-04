@@ -1,3 +1,6 @@
+// Base URL for your Flask application deployed on Render
+const RENDER_BASE_URL = 'https://fredai-io.onrender.com';
+
 let faqs = [];
 let currentCategory = null;
 
@@ -17,22 +20,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const header = document.querySelector('.chatbot-header');
     if (!document.querySelector('.logo-img')) {
         const logo = document.createElement('img');
-        logo.src = "/static/logo.jpeg";
+        // Updated to use absolute URL for logo.jpeg from Render
+        logo.src = `${RENDER_BASE_URL}/static/logo.jpeg`;
         logo.alt = "Nocturne Opus Logo";
         logo.className = "logo-img";
         header.prepend(logo);
     }
 
     // Load FAQs from faq.json
-    fetch('/faq.json')
+    // Updated to use absolute URL for faq.json from Render
+    fetch(`${RENDER_BASE_URL}/faq.json`)
         .then(resp => resp.json())
         .then(data => {
             faqs = data;
             showCategories();
             showGreeting();
         })
-        .catch(() => {
-            document.getElementById('faq-list').innerHTML = "<div style='color:red;'>Could not load FAQs.</div>";
+        .catch((error) => {
+            console.error("Error loading FAQs:", error);
+            document.getElementById('faq-list').innerHTML = "<div style='color:red;'>Could not load FAQs. Please try again later.</div>";
         });
 
     // Suggestion submit
@@ -45,7 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
             msgDiv.style.color = "#c0392b";
             return;
         }
-        fetch('/submit_suggestion', {
+        // Updated to use absolute URL for submit_suggestion from Render
+        fetch(`${RENDER_BASE_URL}/submit_suggestion`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({suggestion: val})
@@ -56,7 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
             msgDiv.style.color = "#0C483E";
             document.getElementById('suggestion-input').value = '';
         })
-        .catch(() => {
+        .catch((error) => {
+            console.error("Error submitting suggestion:", error);
             msgDiv.textContent = "Failed to submit. Please try again.";
             msgDiv.style.color = "#c0392b";
         });
@@ -75,7 +83,8 @@ function addMessage(text, who = 'bot') {
     msgDiv.className = `message ${who}`;
     if (who === 'bot') {
         msgDiv.innerHTML = `
-            <img src="/static/avatar.png" alt="Bot Avatar" class="bot-avatar">
+            <!-- Updated to use absolute URL for avatar.png from Render -->
+            <img src="${RENDER_BASE_URL}/static/avatar.png" alt="Bot Avatar" class="bot-avatar">
             <div class="bubble">${text}</div>
         `;
     } else {
@@ -127,8 +136,10 @@ function showQuestions(categoryObj) {
 // User selects a question
 function onUserSelectsQuestion(faq, categoryObj) {
     addMessage(faq.question, 'user');
-    showCategories(); // Show categories immediately!
+    // Display the answer immediately
+    addMessage(faq.answer, 'bot');
+    // Then show categories after a short delay
     setTimeout(() => {
-        addMessage(faq.answer, 'bot');
+        showCategories();
     }, 500);
 }
