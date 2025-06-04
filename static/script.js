@@ -69,7 +69,67 @@ document.addEventListener('DOMContentLoaded', function () {
             msgDiv.style.color = "#c0392b";
         });
     });
+
+    // Event listeners for open-ended chat
+    const chatInput = document.getElementById('chat-input');
+    const sendChatBtn = document.getElementById('send-chat-btn');
+
+    sendChatBtn.addEventListener('click', sendOpenEndedMessage);
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendOpenEndedMessage();
+        }
+    });
 });
+
+// Function to send open-ended messages to Gemini API
+async function sendOpenEndedMessage() {
+    const chatInput = document.getElementById('chat-input');
+    const userMessage = chatInput.value.trim();
+
+    if (!userMessage) {
+        return; // Don't send empty messages
+    }
+
+    addMessage(userMessage, 'user'); // Display user's message
+    chatInput.value = ''; // Clear input field
+
+    // Optionally add a loading indicator
+    const loadingMessageId = 'loading-gemini-response';
+    addMessage('Thinking...', 'bot', loadingMessageId); // Add a temporary loading message
+
+    try {
+        const response = await fetch(`${RENDER_BASE_URL}/chat_gemini`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage })
+        });
+
+        const data = await response.json();
+
+        // Remove loading message
+        const loadingMsgDiv = document.getElementById(loadingMessageId);
+        if (loadingMsgDiv) {
+            loadingMsgDiv.remove();
+        }
+
+        if (response.ok) {
+            addMessage(data.response, 'bot'); // Display Gemini's response
+        } else {
+            console.error("Error from Gemini API endpoint:", data.error || response.statusText);
+            addMessage("Sorry, I couldn't process that. Please try again.", 'bot');
+        }
+    } catch (error) {
+        console.error("Network or unexpected error calling Gemini API:", error);
+        // Remove loading message
+        const loadingMsgDiv = document.getElementById(loadingMessageId);
+        if (loadingMsgDiv) {
+            loadingMsgDiv.remove();
+        }
+        addMessage("It seems I'm having trouble connecting. Please check your internet or try again later.", 'bot');
+    }
+}
+
 
 // Show greeting at start
 function showGreeting() {
@@ -77,10 +137,13 @@ function showGreeting() {
 }
 
 // Add a message bubble to chat
-function addMessage(text, who = 'bot') {
+function addMessage(text, who = 'bot', id = null) {
     const chatArea = document.getElementById('chat-area');
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${who}`;
+    if (id) {
+        msgDiv.id = id; // Set ID for loading message
+    }
     if (who === 'bot') {
         msgDiv.innerHTML = `
             <!-- Updated to use absolute URL for avatar.png from Render -->
@@ -99,6 +162,8 @@ function addMessage(text, who = 'bot') {
 function showCategories() {
     currentCategory = null;
     const faqList = document.getElementById('faq-list');
+    // Hide FAQ list if it's currently showing questions, to make room for chat input
+    faqList.style.display = 'block'; // Ensure it's visible when showing categories
     faqList.innerHTML = `<div class="categories-container"></div>`;
     const container = faqList.querySelector('.categories-container');
     faqs.forEach(cat => {
@@ -143,3 +208,4 @@ function onUserSelectsQuestion(faq, categoryObj) {
         showCategories();
     }, 500);
 }
+
