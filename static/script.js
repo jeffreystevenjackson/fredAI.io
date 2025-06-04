@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Event listeners for open-ended chat
     const chatInput = document.getElementById('chat-input');
     const sendChatBtn = document.getElementById('send-chat-btn');
-    const showFaqsBtn = document.getElementById('show-faqs-btn'); // Get the new button
+    const showFaqsBtn = document.getElementById('show-faqs-btn');
 
     sendChatBtn.addEventListener('click', sendOpenEndedMessage);
     chatInput.addEventListener('keypress', function(e) {
@@ -84,6 +84,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Event listener for the new "Browse FAQs" button
     showFaqsBtn.addEventListener('click', showCategories);
+
+    // Get the close button and chatbot wrapper
+    const closeChatbotBtn = document.getElementById('close-chatbot-btn');
+    const chatbotWrapper = document.querySelector('.chatbot-wrapper');
+
+    // Add event listener to close button
+    if (closeChatbotBtn && chatbotWrapper) {
+        closeChatbotBtn.addEventListener('click', () => {
+            chatbotWrapper.classList.add('chatbot-hidden'); // Add the class to hide
+        });
+    }
 
     // Ensure chat area is visible and faq-list is hidden when starting chat
     const chatTab = document.getElementById('chat-tab');
