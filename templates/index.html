@@ -5,15 +5,12 @@
     <title>Nocturne Opus Chatbot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Updated to use absolute URL for style.css from Render -->
     <link rel="stylesheet" href="https://fredai-io.onrender.com/static/style.css">
 </head>
 <body>
     <div class="chatbot-wrapper">
-        <!-- Updated to use absolute URL for watermark-bg image from Render -->
         <img src="https://fredai-io.onrender.com/static/img.png" class="watermark-bg" alt="Nocturne Opus Watermark" />
         <div class="chatbot-header">
-            <!-- Updated to use absolute URL for logo image from Render -->
             <img src="https://fredai-io.onrender.com/static/logo.jpeg" alt="Nocturne Opus Logo" class="logo-img">
             <span class="brand-title">Nocturne Opus</span>
         </div>
@@ -22,8 +19,14 @@
             <button class="tab-btn" data-tab="suggestion">Suggestion</button>
         </div>
         <div class="tab-content" id="chat-tab" style="display: flex;">
-            <div class="chat-area" id="chat-area"></div>
-            <div class="faq-list" id="faq-list"></div>
+            <div class="chat-scrollable-content" id="chat-scrollable-content">
+                <div class="chat-area" id="chat-area"></div>
+                <div class="faq-list" id="faq-list" style="display: none;"></div>
+            </div>
+            <div class="chat-input-container">
+                <textarea id="chat-input" class="chat-input" placeholder="Type your message..."></textarea>
+                <button id="send-chat-btn" class="send-chat-btn">Send</button>
+            </div>
         </div>
         <div class="tab-content" id="suggestion-tab" style="display: none;">
             <div class="suggestion-form">
@@ -33,7 +36,6 @@
             </div>
         </div>
     </div>
-    <!-- Updated to use absolute URL for script.js from Render -->
     <script src="https://fredai-io.onrender.com/static/script.js"></script>
 </body>
 </html>
