@@ -4,12 +4,7 @@ import os
 
 app = Flask(__name__)
 
-import os
-# ... other imports ...
-
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY") # f946fab8dcec804d2c75da49dcb89da3
-
+app.secret_key = os.getenv("SECRET_KEY")
 
 FAQ_JSON = 'faq.json'
 SUGGESTIONS_FILE = 'suggestions.json'  # To save suggestions (optional)
@@ -41,8 +36,13 @@ def submit_suggestion():
         with open(SUGGESTIONS_FILE, 'r', encoding='utf-8') as f:
             try:
                 suggestions = json.load(f)
-            except Exception:
+            except json.JSONDecodeError:
+                # Handle case where file exists but is empty or not valid JSON
                 suggestions = []
+            except Exception:
+                # Catch any other unexpected errors during file reading
+                suggestions = []
+
 
     suggestions.append({'suggestion': suggestion})
     with open(SUGGESTIONS_FILE, 'w', encoding='utf-8') as f:
