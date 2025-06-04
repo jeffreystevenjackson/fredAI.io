@@ -1,211 +1,405 @@
-// Base URL for your Flask application deployed on Render
-const RENDER_BASE_URL = 'https://fredai-io.onrender.com';
+:root {
+    --emerald: #0C483E;
+    --sangria: #52303F;
+    --rose-gold: #c1aa73;
+    --jolly-blue: #193B53;
+    --chat-bg: #faf8f6;
+    --white: #fff;
+}
 
-let faqs = [];
-let currentCategory = null;
+body {
+    background: var(--chat-bg);
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-            let activeTab = document.getElementById(this.dataset.tab + '-tab');
-            activeTab.style.display = 'flex';
-        });
-    });
+.chatbot-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    min-width: 350px;
+    min-height: 760px;
+    background: var(--white);
+    margin: 32px auto;
+    border-radius: 28px;
+    box-shadow: 0 8px 40px rgba(30,24,47,0.13);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid var(--emerald);
+}
 
-    // Add logo to header if not present
-    const header = document.querySelector('.chatbot-header');
-    if (!document.querySelector('.logo-img')) {
-        const logo = document.createElement('img');
-        // Updated to use absolute URL for logo.jpeg from Render
-        logo.src = `${RENDER_BASE_URL}/static/logo.jpeg`;
-        logo.alt = "Nocturne Opus Logo";
-        logo.className = "logo-img";
-        header.prepend(logo);
-    }
+.watermark-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    max-width: 700px;
+    opacity: 0.15;              /* Adjust for faintness */
+    z-index: 0;
+    pointer-events: none;       /* Makes it unclickable */
+    user-select: none;
+}
 
-    // Load FAQs from faq.json
-    // Updated to use absolute URL for faq.json from Render
-    fetch(`${RENDER_BASE_URL}/faq.json`)
-        .then(resp => resp.json())
-        .then(data => {
-            faqs = data;
-            showCategories();
-            showGreeting();
-        })
-        .catch((error) => {
-            console.error("Error loading FAQs:", error);
-            document.getElementById('faq-list').innerHTML = "<div style='color:red;'>Could not load FAQs. Please try again later.</div>";
-        });
+/* avatar img */
+.bot-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 9px;
+    border: 2px solid var(--rose-gold);
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(193,170,115,0.10);
+    padding-bottom: 5px;
+}
 
-    // Suggestion submit
-    document.getElementById('suggestion-btn').addEventListener('click', function() {
-        let val = document.getElementById('suggestion-input').value.trim();
-        let msgDiv = document.getElementById('suggestion-message');
-        msgDiv.textContent = "";
-        if (val.length < 4) {
-            msgDiv.textContent = "Please enter a longer suggestion.";
-            msgDiv.style.color = "#c0392b";
-            return;
-        }
-        // Updated to use absolute URL for submit_suggestion from Render
-        fetch(`${RENDER_BASE_URL}/submit_suggestion`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({suggestion: val})
-        })
-        .then(res => res.json())
-        .then(data => {
-            msgDiv.textContent = data.message;
-            msgDiv.style.color = "#0C483E";
-            document.getElementById('suggestion-input').value = '';
-        })
-        .catch((error) => {
-            console.error("Error submitting suggestion:", error);
-            msgDiv.textContent = "Failed to submit. Please try again.";
-            msgDiv.style.color = "#c0392b";
-        });
-    });
-
-    // Event listeners for open-ended chat
-    const chatInput = document.getElementById('chat-input');
-    const sendChatBtn = document.getElementById('send-chat-btn');
-
-    sendChatBtn.addEventListener('click', sendOpenEndedMessage);
-    chatInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            sendOpenEndedMessage();
-        }
-    });
-});
-
-// Function to send open-ended messages to Gemini API
-async function sendOpenEndedMessage() {
-    const chatInput = document.getElementById('chat-input');
-    const userMessage = chatInput.value.trim();
-
-    if (!userMessage) {
-        return; // Don't send empty messages
-    }
-
-    addMessage(userMessage, 'user'); // Display user's message
-    chatInput.value = ''; // Clear input field
-
-    // Optionally add a loading indicator
-    const loadingMessageId = 'loading-gemini-response';
-    addMessage('Thinking...', 'bot', loadingMessageId); // Add a temporary loading message
-
-    try {
-        const response = await fetch(`${RENDER_BASE_URL}/chat_gemini`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
-        });
-
-        const data = await response.json();
-
-        // Remove loading message
-        const loadingMsgDiv = document.getElementById(loadingMessageId);
-        if (loadingMsgDiv) {
-            loadingMsgDiv.remove();
-        }
-
-        if (response.ok) {
-            addMessage(data.response, 'bot'); // Display Gemini's response
-        } else {
-            console.error("Error from Gemini API endpoint:", data.error || response.statusText);
-            addMessage("Sorry, I couldn't process that. Please try again.", 'bot');
-        }
-    } catch (error) {
-        console.error("Network or unexpected error calling Gemini API:", error);
-        // Remove loading message
-        const loadingMsgDiv = document.getElementById(loadingMessageId);
-        if (loadingMsgDiv) {
-            loadingMsgDiv.remove();
-        }
-        addMessage("It seems I'm having trouble connecting. Please check your internet or try again later.", 'bot');
-    }
+.message.bot {
+    align-items: flex-start;
+    gap: 7px;
+    display: flex;
 }
 
 
-// Show greeting at start
-function showGreeting() {
-    addMessage('Hello, I’m Nocturne Opus Assistant. How can I help?', 'bot');
+.chatbot-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 28px 16px 28px;
+    background: var(--white);
+    border-bottom: 1.5px solid #eee;
+    gap: 12px;
 }
 
-// Add a message bubble to chat
-function addMessage(text, who = 'bot', id = null) {
-    const chatArea = document.getElementById('chat-area');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${who}`;
-    if (id) {
-        msgDiv.id = id; // Set ID for loading message
+.logo-img {
+    width: 37px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 2px solid var(--rose-gold);
+    background: var(--white);
+}
+
+.brand-title {
+    font-family: 'Inknut Antiqua', serif;
+    font-size: 1.25rem;
+    color: var(--emerald);
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.tab-nav {
+    display: flex;
+    border-bottom: 1px solid #f3e7d6;
+    background: #fff8ed;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px 0;
+    background: transparent;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: var(--emerald);
+    font-size: 1.08rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.tab-btn.active {
+    background: var(--rose-gold);
+    color: var(--sangria);
+    border-bottom: 2.5px solid var(--emerald);
+    border-radius: 0px 12px 0 0;
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    height: 440px;
+    background: var(--chat-bg);
+    padding: 0;
+}
+
+#chat-tab.tab-content {
+    display: flex;
+    height: 440px;
+    padding: 0;
+}
+
+#suggestion-tab.tab-content {
+    display: flex;
+    height: 260px;
+    background: #fff8ed;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-scrollable-content { /* New style for the scrollable area */
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 18px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.chat-area {
+    display: flex; /* Ensure messages are stacked correctly */
+    flex-direction: column;
+    gap: 16px;
+    min-height: fit-content; /* Allow content to dictate height */
+}
+
+
+.message {
+    display: flex;
+    margin-bottom: 6px;
+    align-items: flex-end;
+}
+
+.message.bot {
+    justify-content: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.bubble {
+    max-width: 74%;
+    padding: 12px 18px;
+    border-radius: 18px 18px 18px 5px;
+    font-size: 1rem;
+    box-shadow: 0 1px 6px rgba(12,72,62,0.10);
+    word-break: break-word;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.5;
+}
+
+.bot .bubble {
+    background: var(--rose-gold);
+    color: var(--jolly-blue);
+    border-radius: 18px 18px 7px 18px;
+    border: 1px solid var(--emerald);
+}
+
+.user .bubble {
+    background: var(--emerald);
+    color: var(--white);
+    border-radius: 18px 7px 18px 18px;
+    border: 1px solid var(--rose-gold);
+    text-align: right;
+}
+
+.faq-list {
+    margin-top: 1.2rem;
+    margin-bottom: 12px;
+}
+
+.categories-container,
+.questions-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    justify-items: center;
+    align-items: center;
+    width: 96%;
+    max-width: 380px;
+    margin: 0 auto 14px auto;
+}
+
+.category-btn,
+.question-btn {
+    background: var(--rose-gold);
+    color: var(--emerald);
+    border: 2px solid var(--emerald);
+    border-radius: 18px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 135px;
+    min-height: 80px;
+    max-width: 180px;
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border 0.18s;
+    box-shadow: 0 2px 8px rgba(12,72,62,0.05);
+    margin: 0 auto;
+    margin-top: -0.5rem;
+    white-space: normal;
+}
+
+.category-btn:hover,
+.category-btn.active,
+.question-btn:hover,
+.question-btn.active {
+    background: var(--emerald);
+    color: var(--white);
+    border: 2px solid var(--rose-gold);
+}
+
+.suggestion-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 92%;
+    height: 100%;
+    margin: 0 auto;
+    padding: 24px 0 0 0;
+}
+
+.suggestion-input {
+    width: 100%;
+    min-height: 70px;
+    border-radius: 12px;
+    border: 1.2px solid var(--emerald);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    padding: 14px 10px;
+    margin-bottom: 16px;
+    background: #fff8ed;
+    color: var(--emerald);
+    resize: vertical;
+}
+
+.suggestion-btn {
+    background: var(--emerald);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 34px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 2px 8px rgba(12,72,62,0.07);
+}
+
+.suggestion-btn:hover {
+    background: var(--rose-gold);
+    color: var(--emerald);
+}
+
+.suggestion-message {
+    margin-top: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.01rem;
+    color: var(--emerald);
+    text-align: center;
+}
+
+.chat-input-container {
+    display: flex;
+    padding: 12px 18px;
+    border-top: 1px solid #eee;
+    background: var(--white);
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-input {
+    flex: 1;
+    border: 1px solid var(--rose-gold);
+    border-radius: 20px;
+    padding: 10px 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    resize: none; /* Prevent vertical resizing */
+    min-height: 20px; /* Adjust as needed */
+    max-height: 80px; /* Adjust as needed */
+    overflow-y: auto;
+}
+
+.send-chat-btn {
+    background: var(--emerald);
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+
+.send-chat-btn:hover {
+    background: var(--rose-gold);
+    color: var(--emerald);
+}
+
+
+@media (max-width: 600px) {
+    .chatbot-wrapper {
+        max-width: 99vw;
+        min-width: 98vw;
+        margin: 2vw 1vw 2vw 1vw;
+        border-radius: 18px;
     }
-    if (who === 'bot') {
-        msgDiv.innerHTML = `
-            <!-- Updated to use absolute URL for avatar.png from Render -->
-            <img src="${RENDER_BASE_URL}/static/avatar.png" alt="Bot Avatar" class="bot-avatar">
-            <div class="bubble">${text}</div>
-        `;
-    } else {
-        msgDiv.innerHTML = `<div class="bubble">${text}</div>`;
+    .chatbot-header {
+        padding: 14px 10px 12px 12px;
     }
-    chatArea.appendChild(msgDiv);
-    chatArea.scrollTop = chatArea.scrollHeight;
+    .tab-content, #chat-tab.tab-content {
+        height: 66vw;
+        min-height: 330px;
+        max-height: 430px;
+    }
+    .chat-scrollable-content {
+        padding: 8px 4px 8px 4px;
+    }
+    .categories-container,
+    .questions-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        max-width: 98vw;
+    }
+    .category-btn,
+    .question-btn {
+        min-width: 110px;
+        max-width: 100%;
+    }
+
+    .chat-input-container {
+        padding: 8px 10px;
+    }
+
+    .chat-input {
+        padding: 8px 12px;
+    }
+
+    .send-chat-btn {
+        padding: 8px 15px;
+    }
 }
 
-
-// Show categories as buttons at the bottom
-function showCategories() {
-    currentCategory = null;
-    const faqList = document.getElementById('faq-list');
-    // Hide FAQ list if it's currently showing questions, to make room for chat input
-    faqList.style.display = 'block'; // Ensure it's visible when showing categories
-    faqList.innerHTML = `<div class="categories-container"></div>`;
-    const container = faqList.querySelector('.categories-container');
-    faqs.forEach(cat => {
-        let btn = document.createElement('button');
-        btn.className = "category-btn";
-        btn.textContent = cat.category;
-        btn.onclick = () => showQuestions(cat);
-        container.appendChild(btn);
-    });
+::-webkit-scrollbar {
+    width: 7px;
+    background: #f3e7d6;
+    border-radius: 10px;
 }
 
-// Show questions for a selected category
-function showQuestions(categoryObj) {
-    currentCategory = categoryObj.category;
-    const faqList = document.getElementById('faq-list');
-    faqList.innerHTML = `<div class="questions-container"></div>`;
-    const container = faqList.querySelector('.questions-container');
-    categoryObj.faqs.forEach(faq => {
-        let btn = document.createElement('button');
-        btn.className = "question-btn";
-        btn.textContent = faq.question;
-        btn.onclick = () => onUserSelectsQuestion(faq, categoryObj);
-        container.appendChild(btn);
-    });
-    // Optionally add a back button to categories
-    let backBtn = document.createElement('button');
-    backBtn.className = "category-btn";
-    backBtn.style.background = "var(--jolly-blue)";
-    backBtn.style.color = "var(--white)";
-    backBtn.textContent = "← Back to Categories";
-    backBtn.onclick = showCategories;
-    container.appendChild(backBtn);
+::-webkit-scrollbar-thumb {
+    background: var(--rose-gold);
+    border-radius: 10px;
 }
 
-// User selects a question
-function onUserSelectsQuestion(faq, categoryObj) {
-    addMessage(faq.question, 'user');
-    // Display the answer immediately
-    addMessage(faq.answer, 'bot');
-    // Then show categories after a short delay
-    setTimeout(() => {
-        showCategories();
-    }, 500);
+::-webkit-scrollbar-thumb:hover {
+    background: var(--emerald);
 }
 
