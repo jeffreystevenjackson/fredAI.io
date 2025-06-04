@@ -84,8 +84,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Ensure chat area is visible and faq-list is hidden when starting chat
     const chatTab = document.getElementById('chat-tab');
     if (chatTab.style.display === 'flex') { // Check if chat tab is active
-        document.getElementById('faq-list').style.display = 'none';
-        document.getElementById('chat-area').style.display = 'flex';
+        // Initially show FAQ categories as the primary interaction
+        // document.getElementById('faq-list').style.display = 'block'; // Ensure FAQ list is visible initially
+        // document.getElementById('chat-area').style.display = 'none'; // Hide chat area initially if showing FAQs
+        // showCategories() is called in the fetch.then block
     }
 });
 
@@ -222,11 +224,13 @@ function onUserSelectsQuestion(faq, categoryObj) {
     // Display the answer immediately
     addMessage(faq.answer, 'bot');
 
-    document.getElementById('faq-list').style.display = 'none'; // Hide FAQ list after answering
-    document.getElementById('chat-area').style.display = 'flex'; // Show chat area again
+    // Remove the lines that hide faq-list and call showCategories immediately
+    // document.getElementById('faq-list').style.display = 'none'; // REMOVED
+    // document.getElementById('chat-area').style.display = 'flex'; // This line is not needed here as FAQ list stays visible
 
-    // Then show categories after a short delay
-    setTimeout(() => {
-        showCategories();
-    }, 500);
+    // Instead, scroll to ensure the new message is visible
+    const chatScrollableContent = document.getElementById('chat-scrollable-content');
+    chatScrollableContent.scrollTop = chatScrollableContent.scrollHeight;
+
+    // No setTimeout to showCategories here, faq-list remains visible and interactive
 }
